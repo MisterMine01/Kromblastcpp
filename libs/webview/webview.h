@@ -558,6 +558,7 @@ public:
   }
   virtual ~gtk_webkit_engine() = default;
   void *window() { return (void *)m_window; }
+  void *get_webview() { return (void *)m_webview; }
   void run() { gtk_main(); }
   void terminate() { gtk_main_quit(); }
   void dispatch(std::function<void()> f) {

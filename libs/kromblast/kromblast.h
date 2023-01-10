@@ -4,6 +4,7 @@
 #include "webview.h"
 #include "./core/kb_lib_core.h"
 #include "./core/kb_lib_kromblast.h"
+#include <regex>
 
 /**
  * @brief Namespace of kromblast. The application for transforming a web application into a desktop application
@@ -23,6 +24,8 @@ namespace Kromblast
      * @param lib_name List of the libraries
      * @param mode Mode of the libraries
      * @param host Host of the libraries
+     * @param registry_size Size of the registry
+     * @param registry List of the registry
      * @note The config is loaded from the ini file
      */
     struct ConfigKromblast
@@ -38,6 +41,8 @@ namespace Kromblast
         std::string *lib_name;
         int mode;
         std::string host;
+        int registry_size;
+        std::string *registry;
     };
 
     /**
@@ -73,6 +78,15 @@ namespace Kromblast
          */
         bool debug;
 
+        /**
+         * @brief Size of the registry
+         */
+        int registry_size;
+
+        /**
+         * @brief List of the registry regex
+         */
+        std::regex *registry;
     public:
         /**
          * @brief Constructor

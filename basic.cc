@@ -54,6 +54,27 @@ struct Kromblast::ConfigKromblast load_config(std::string path)
         std::cout << "Mode not found" << std::endl;
         exit(1);
     }
+    std::string *registry;
+    int regitry_size = 0;
+    if (ini.has("Registry"))
+    {
+        regitry_size = 2;
+        while (ini["Registry"].has("url" + std::to_string(regitry_size)))
+        {
+            regitry_size *= 2;
+        }
+        while (!ini["Registry"].has("url" + std::to_string(regitry_size)))
+        {
+            regitry_size--;
+        }
+        regitry_size++;
+        registry = new std::string[regitry_size];
+        for (int i = 0; i < regitry_size; i++)
+        {
+            registry[i] = ini["Registry"]["url" + std::to_string(i)].substr(1, ini["Registry"]["url" + std::to_string(i)].length() - 2);
+        }
+    }
+
     std::string title = ini["Window"]["title"].substr(1, ini["Window"]["title"].length() - 2);
     int width = std::stoi(ini["Window"]["width"], nullptr, 10);
     int height = std::stoi(ini["Window"]["height"], nullptr, 10);
@@ -127,7 +148,8 @@ struct Kromblast::ConfigKromblast load_config(std::string path)
         std::cout << "Mode: " << mode << std::endl;
         std::cout << "Mode ID: " << mode_id << std::endl;
         std::cout << "Host: " << host << std::endl;
-        std::cout << "------------------------------" << std::endl << std::endl;
+        std::cout << "------------------------------" << std::endl
+                  << std::endl;
     }
     struct Kromblast::ConfigKromblast result = {
         title,
@@ -140,7 +162,9 @@ struct Kromblast::ConfigKromblast load_config(std::string path)
         lib_count,
         lib_name,
         mode_id,
-        host};
+        host,
+        regitry_size,
+        registry};
     return result;
 }
 

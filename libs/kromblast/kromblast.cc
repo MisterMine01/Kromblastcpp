@@ -7,6 +7,7 @@
 #include "dlfcn.h"
 #include <iostream>
 #include <ctime>
+#include <regex>
 #include "X11/Xlib.h"
 
 /**
@@ -41,6 +42,16 @@ Kromblast::Kromblast::Kromblast(ConfigKromblast config)
         gtk_window_set_decorated(GTK_WINDOW(window), false);
         gtk_window_move(GTK_WINDOW(window), 0, 0);
     }
+    this->registry_size = config.registry_size;
+    if (config.debug)
+        log("Kromblast::Constructor", ("Load the registry of size " + std::to_string(registry_size)).c_str());
+    this->registry = new std::regex[registry_size];
+    for (int i = 0; i < registry_size; i++)
+    {
+        if (config.debug)
+            log("Kromblast::Constructor", ("Load the registry " + config.registry[i]).c_str());
+        registry[i] = std::regex(config.registry[i], std::regex_constants::ECMAScript);
+    }
     kromblast_window->bind("kromblast", [&](std::string arg) // Bind the kromblast function
                            { return (std::string)(kromblast_callback(arg.c_str())); });
     this->kromblast_function_lib = Utils::Library::kromblast_load_library(&kromblast_function_nb, config.lib_name, config.lib_count, this, *kromblast_window);
@@ -61,6 +72,26 @@ Kromblast::Kromblast::~Kromblast()
  */
 const char *Kromblast::Kromblast::kromblast_callback(const char *req)
 {
+    std::string uri = webkit_web_view_get_uri(WEBKIT_WEB_VIEW((GtkWidget *)this->kromblast_window->get_webview()));
+
+    if (debug)
+        log("Callback", ("uri: " + uri).c_str());
+
+    if (registry_size != 0)
+    {
+        bool find = false;
+        for (int i = 0; i < registry_size; i++)
+        {
+            if (std::regex_match(uri, registry[i]))
+            {
+                if (debug)
+                    log("Callback", ("uri: " + uri + " is in registry").c_str());
+                // find = true;
+                // break;
+            }
+        }
+    }
+
     struct KromblastCore::kromblast_callback_called function_called;
 
     std::string req_str = req;
